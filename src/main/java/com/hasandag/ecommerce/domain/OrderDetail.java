@@ -1,5 +1,6 @@
 package com.hasandag.ecommerce.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,5 +27,6 @@ public class OrderDetail {
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "order_id", nullable = false, unique = true)
+  @JsonBackReference
   private Order order;
 }

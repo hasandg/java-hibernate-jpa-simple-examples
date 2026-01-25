@@ -1,5 +1,6 @@
 package com.hasandag.ecommerce.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,5 +25,6 @@ public class Tag {
   private String name;
 
   @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+  @JsonBackReference
   private Set<Product> products = new HashSet<>();
 }

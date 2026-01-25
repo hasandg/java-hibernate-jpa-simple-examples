@@ -1,5 +1,6 @@
 package com.hasandag.ecommerce.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,5 +28,6 @@ public class Category {
   private String description;
 
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+  @JsonBackReference
   private List<Product> products = new ArrayList<>();
 }

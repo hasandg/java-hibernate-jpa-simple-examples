@@ -1,5 +1,6 @@
 package com.hasandag.ecommerce.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,5 +35,6 @@ public class Address {
   private String country;
 
   @OneToOne(mappedBy = "address")
+  @JsonBackReference
   private Customer customer;
 }
