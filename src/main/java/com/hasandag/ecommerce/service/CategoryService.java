@@ -1,9 +1,9 @@
 package com.hasandag.ecommerce.service;
 
-import com.hasandag.ecommerce.domain.Category;
 import com.hasandag.ecommerce.dto.CategoryCreateDTO;
 import com.hasandag.ecommerce.dto.CategoryResponseDTO;
 import com.hasandag.ecommerce.dto.CategoryUpdateDTO;
+import com.hasandag.ecommerce.entity.Category;
 import com.hasandag.ecommerce.mapper.CategoryMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
 import jakarta.persistence.EntityNotFoundException;

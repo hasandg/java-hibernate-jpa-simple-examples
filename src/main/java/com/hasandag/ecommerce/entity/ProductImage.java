@@ -1,33 +1,29 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "product_reviews")
+@Table(name = "product_images")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductReview {
+public class ProductImage {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(nullable = false)
-  private String reviewerName;
+  private String imageUrl;
 
   @Column(nullable = false)
-  private Integer rating;
-
-  @Column(length = 1000)
-  private String comment;
+  private String altText;
 
   @Column(nullable = false)
-  private LocalDateTime reviewDate;
+  private Integer displayOrder;
 }

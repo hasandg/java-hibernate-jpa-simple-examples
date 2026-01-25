@@ -18,7 +18,15 @@ public class SwaggerConfig {
             new Info()
                 .title("Ecommerce API")
                 .version("1.0.0")
-                .description("Spring Boot Ecommerce Application REST API")
+                .description(
+                    "Spring Boot Ecommerce Application REST API\n\n"
+                        + "**Entity Relationships:**\n\n"
+                        + "1. **Unidirectional OneToOne**: Customer → Address\n"
+                        + "2. **Bidirectional OneToOne**: Order ↔ ShippingInfo\n"
+                        + "3. **Bidirectional OneToMany**: Order ↔ OrderItem\n"
+                        + "4. **Unidirectional OneToMany**: Product → Review\n"
+                        + "5. **Bidirectional ManyToMany**: Product ↔ Category\n"
+                        + "6. **Unidirectional ManyToMany**: Tag → Product")
                 .contact(new Contact().name("API Support").email("support@ecommerce.com"))
                 .license(
                     new License()

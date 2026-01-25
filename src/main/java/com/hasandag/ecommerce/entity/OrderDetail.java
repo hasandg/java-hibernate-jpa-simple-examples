@@ -1,33 +1,32 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "order_details")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class OrderDetail {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(nullable = false, unique = true)
-  private String name;
-
   @Column(length = 500)
-  private String description;
+  private String notes;
 
-  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+  @Column(length = 50)
+  private String shippingMethod;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "order_id", nullable = false, unique = true)
   @JsonBackReference
-  private List<Product> products = new ArrayList<>();
+  private Order order;
 }

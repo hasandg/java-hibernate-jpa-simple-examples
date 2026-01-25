@@ -1,9 +1,9 @@
 package com.hasandag.ecommerce.mapper;
 
-import com.hasandag.ecommerce.domain.Order;
 import com.hasandag.ecommerce.dto.OrderCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
+import com.hasandag.ecommerce.entity.Order;
 import org.mapstruct.*;
 
 @Mapper(

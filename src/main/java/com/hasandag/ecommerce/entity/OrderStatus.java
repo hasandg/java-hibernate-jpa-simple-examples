@@ -1,4 +1,4 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 public enum OrderStatus {
   PENDING,

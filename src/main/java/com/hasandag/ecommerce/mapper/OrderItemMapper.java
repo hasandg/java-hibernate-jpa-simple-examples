@@ -1,8 +1,8 @@
 package com.hasandag.ecommerce.mapper;
 
-import com.hasandag.ecommerce.domain.OrderItem;
 import com.hasandag.ecommerce.dto.OrderItemCreateDTO;
 import com.hasandag.ecommerce.dto.OrderItemResponseDTO;
+import com.hasandag.ecommerce.entity.OrderItem;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

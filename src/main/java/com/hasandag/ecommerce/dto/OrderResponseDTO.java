@@ -1,6 +1,6 @@
 package com.hasandag.ecommerce.dto;
 
-import com.hasandag.ecommerce.domain.OrderStatus;
+import com.hasandag.ecommerce.entity.OrderStatus;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,10 +1,10 @@
 package com.hasandag.ecommerce.service;
 
-import com.hasandag.ecommerce.domain.Category;
-import com.hasandag.ecommerce.domain.Product;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
+import com.hasandag.ecommerce.entity.Category;
+import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.ProductMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;

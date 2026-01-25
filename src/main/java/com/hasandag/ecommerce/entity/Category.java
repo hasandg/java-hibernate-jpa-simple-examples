@@ -1,21 +1,21 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "tags")
+@Table(name = "categories")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Tag {
+public class Category {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +24,10 @@ public class Tag {
   @Column(nullable = false, unique = true)
   private String name;
 
-  @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
+  @Column(length = 500)
+  private String description;
+
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonBackReference
-  private Set<Product> products = new HashSet<>();
+  private List<Product> products = new ArrayList<>();
 }

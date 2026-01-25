@@ -1,9 +1,9 @@
 package com.hasandag.ecommerce.mapper;
 
-import com.hasandag.ecommerce.domain.Category;
 import com.hasandag.ecommerce.dto.CategoryCreateDTO;
 import com.hasandag.ecommerce.dto.CategoryResponseDTO;
 import com.hasandag.ecommerce.dto.CategoryUpdateDTO;
+import com.hasandag.ecommerce.entity.Category;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

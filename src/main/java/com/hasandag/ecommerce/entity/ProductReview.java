@@ -1,36 +1,33 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "product_reviews")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Customer {
+public class ProductReview {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Column(nullable = false)
-  private String firstName;
+  private String reviewerName;
 
   @Column(nullable = false)
-  private String lastName;
+  private Integer rating;
 
-  @Column(nullable = false, unique = true)
-  private String email;
+  @Column(length = 1000)
+  private String comment;
 
   @Column(nullable = false)
-  private String phone;
-
-  @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-  @JoinColumn(name = "address_id", unique = true)
-  private Address address;
+  private LocalDateTime reviewDate;
 }

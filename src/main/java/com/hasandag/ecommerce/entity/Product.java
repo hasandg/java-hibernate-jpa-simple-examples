@@ -1,4 +1,4 @@
-package com.hasandag.ecommerce.domain;
+package com.hasandag.ecommerce.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;

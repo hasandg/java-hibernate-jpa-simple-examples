@@ -1,6 +1,6 @@
 package com.hasandag.ecommerce.repository;
 
-import com.hasandag.ecommerce.domain.Category;
+import com.hasandag.ecommerce.entity.Category;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

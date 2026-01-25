@@ -1,14 +1,14 @@
 package com.hasandag.ecommerce.service;
 
-import com.hasandag.ecommerce.domain.Order;
-import com.hasandag.ecommerce.domain.OrderDetail;
-import com.hasandag.ecommerce.domain.OrderItem;
-import com.hasandag.ecommerce.domain.OrderStatus;
-import com.hasandag.ecommerce.domain.Product;
 import com.hasandag.ecommerce.dto.OrderCreateDTO;
 import com.hasandag.ecommerce.dto.OrderItemCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
+import com.hasandag.ecommerce.entity.Order;
+import com.hasandag.ecommerce.entity.OrderDetail;
+import com.hasandag.ecommerce.entity.OrderItem;
+import com.hasandag.ecommerce.entity.OrderStatus;
+import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.OrderItemMapper;
 import com.hasandag.ecommerce.mapper.OrderMapper;
 import com.hasandag.ecommerce.repository.OrderRepository;
