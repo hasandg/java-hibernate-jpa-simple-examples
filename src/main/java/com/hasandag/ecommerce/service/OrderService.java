@@ -1,9 +1,11 @@
 package com.hasandag.ecommerce.service;
 
 import com.hasandag.ecommerce.dto.OrderCreateDTO;
+import com.hasandag.ecommerce.dto.OrderFilterDTO;
 import com.hasandag.ecommerce.dto.OrderItemCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
+import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.entity.Order;
 import com.hasandag.ecommerce.entity.OrderDetail;
 import com.hasandag.ecommerce.entity.OrderItem;
@@ -13,12 +15,17 @@ import com.hasandag.ecommerce.mapper.OrderItemMapper;
 import com.hasandag.ecommerce.mapper.OrderMapper;
 import com.hasandag.ecommerce.repository.OrderRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;
+import com.hasandag.ecommerce.repository.specification.OrderSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +150,26 @@ public class OrderService {
       }
     }
     orderRepository.deleteAllById(ids);
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponseDTO<OrderResponseDTO> filter(OrderFilterDTO filterDTO) {
+    Specification<Order> spec = OrderSpecification.buildSpecification(filterDTO);
+    Pageable pageable =
+        PageRequest.of(
+            filterDTO.getPage() != null ? filterDTO.getPage() : 0,
+            filterDTO.getSize() != null ? filterDTO.getSize() : 10);
+    Page<Order> page = orderRepository.findAll(spec, pageable);
+    List<OrderResponseDTO> content =
+        page.getContent().stream().map(orderMapper::toResponseDTO).toList();
+    return new PageResponseDTO<>(
+        content,
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages(),
+        page.isFirst(),
+        page.isLast());
   }
 
   private String generateOrderNumber() {

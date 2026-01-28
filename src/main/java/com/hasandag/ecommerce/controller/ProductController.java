@@ -1,7 +1,9 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
+import com.hasandag.ecommerce.dto.ProductFilterDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
 import com.hasandag.ecommerce.service.ProductService;
@@ -69,6 +71,21 @@ public class ProductController {
       @Parameter(description = "Category ID", required = true) @PathVariable Long categoryId) {
     List<ProductResponseDTO> responses = productService.findByCategoryId(categoryId);
     return ResponseEntity.ok(responses);
+  }
+
+  @PostMapping("/filter")
+  @Operation(
+      summary = "Filter products with pagination",
+      description = "Filters products based on criteria with pagination support")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Products filtered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
+      })
+  public ResponseEntity<PageResponseDTO<ProductResponseDTO>> filter(
+      @Valid @RequestBody ProductFilterDTO filterDTO) {
+    PageResponseDTO<ProductResponseDTO> response = productService.filter(filterDTO);
+    return ResponseEntity.ok(response);
   }
 
   @PutMapping

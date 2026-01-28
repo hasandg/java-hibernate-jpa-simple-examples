@@ -1,9 +1,11 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.CategoryCreateDTO;
+import com.hasandag.ecommerce.dto.CategoryFilterDTO;
 import com.hasandag.ecommerce.dto.CategoryResponseDTO;
 import com.hasandag.ecommerce.dto.CategoryUpdateDTO;
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -62,6 +64,21 @@ public class CategoryController {
   public ResponseEntity<List<CategoryResponseDTO>> findAll() {
     List<CategoryResponseDTO> responses = categoryService.findAll();
     return ResponseEntity.ok(responses);
+  }
+
+  @PostMapping("/filter")
+  @Operation(
+      summary = "Filter categories with pagination",
+      description = "Filters categories based on criteria with pagination support")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Categories filtered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
+      })
+  public ResponseEntity<PageResponseDTO<CategoryResponseDTO>> filter(
+      @Valid @RequestBody CategoryFilterDTO filterDTO) {
+    PageResponseDTO<CategoryResponseDTO> response = categoryService.filter(filterDTO);
+    return ResponseEntity.ok(response);
   }
 
   @PutMapping

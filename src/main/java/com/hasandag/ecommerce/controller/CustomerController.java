@@ -1,12 +1,17 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.CustomerCreateDTO;
+import com.hasandag.ecommerce.dto.CustomerFilterDTO;
 import com.hasandag.ecommerce.dto.CustomerResponseDTO;
 import com.hasandag.ecommerce.dto.CustomerUpdateDTO;
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,6 +67,93 @@ public class CustomerController {
   public ResponseEntity<List<CustomerResponseDTO>> findAll() {
     List<CustomerResponseDTO> responses = customerService.findAll();
     return ResponseEntity.ok(responses);
+  }
+
+  @PostMapping("/filter")
+  @Operation(
+      summary = "Filter customers with pagination",
+      description =
+          "Filters customers based on criteria with pagination support. All filter fields are optional and support partial matching (case-insensitive for text fields).\n\n"
+              + "**Example Use Cases:**\n\n"
+              + "1. **Search by name**: Filter customers by first or last name\n"
+              + "2. **Search by email**: Find customers with specific email domain\n"
+              + "3. **Search by location**: Filter by city or country\n"
+              + "4. **Combined filters**: Use multiple criteria together\n\n"
+              + "**Examples:**\n\n"
+              + "```json\n"
+              + "// Search by first name\n"
+              + "{\n"
+              + "  \"firstName\": \"John\",\n"
+              + "  \"page\": 0,\n"
+              + "  \"size\": 10\n"
+              + "}\n"
+              + "```\n\n"
+              + "```json\n"
+              + "// Search by city and country\n"
+              + "{\n"
+              + "  \"city\": \"Istanbul\",\n"
+              + "  \"country\": \"Turkey\",\n"
+              + "  \"page\": 0,\n"
+              + "  \"size\": 20\n"
+              + "}\n"
+              + "```\n\n"
+              + "```json\n"
+              + "// Search by email domain\n"
+              + "{\n"
+              + "  \"email\": \"@gmail.com\",\n"
+              + "  \"page\": 0,\n"
+              + "  \"size\": 10\n"
+              + "}\n"
+              + "```\n\n"
+              + "```json\n"
+              + "// Combined search\n"
+              + "{\n"
+              + "  \"firstName\": \"John\",\n"
+              + "  \"lastName\": \"Doe\",\n"
+              + "  \"city\": \"Istanbul\",\n"
+              + "  \"page\": 0,\n"
+              + "  \"size\": 10\n"
+              + "}\n"
+              + "```")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Customers filtered successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
+      })
+  @RequestBody(
+      description = "Filter criteria for customer search",
+      required = true,
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples = {
+                @ExampleObject(
+                    name = "Search by name",
+                    summary = "Filter by first name",
+                    value = "{\"firstName\": \"John\", \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Search by location",
+                    summary = "Filter by city and country",
+                    value =
+                        "{\"city\": \"Istanbul\", \"country\": \"Turkey\", \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Search by email",
+                    summary = "Filter by email domain",
+                    value = "{\"email\": \"@gmail.com\", \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Combined search",
+                    summary = "Multiple filter criteria",
+                    value =
+                        "{\"firstName\": \"John\", \"lastName\": \"Doe\", \"city\": \"Istanbul\", \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Empty filter",
+                    summary = "Get all customers with pagination",
+                    value = "{\"page\": 0, \"size\": 10}")
+              }))
+  public ResponseEntity<PageResponseDTO<CustomerResponseDTO>> filter(
+      @Valid @RequestBody CustomerFilterDTO filterDTO) {
+    PageResponseDTO<CustomerResponseDTO> response = customerService.filter(filterDTO);
+    return ResponseEntity.ok(response);
   }
 
   @PutMapping

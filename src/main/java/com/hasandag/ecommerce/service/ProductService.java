@@ -1,6 +1,8 @@
 package com.hasandag.ecommerce.service;
 
+import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
+import com.hasandag.ecommerce.dto.ProductFilterDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
 import com.hasandag.ecommerce.entity.Category;
@@ -8,9 +10,14 @@ import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.ProductMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;
+import com.hasandag.ecommerce.repository.specification.ProductSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,6 +98,26 @@ public class ProductService {
 
     Product updatedProduct = productRepository.save(product);
     return productMapper.toResponseDTO(updatedProduct);
+  }
+
+  @Transactional(readOnly = true)
+  public PageResponseDTO<ProductResponseDTO> filter(ProductFilterDTO filterDTO) {
+    Specification<Product> spec = ProductSpecification.buildSpecification(filterDTO);
+    Pageable pageable =
+        PageRequest.of(
+            filterDTO.getPage() != null ? filterDTO.getPage() : 0,
+            filterDTO.getSize() != null ? filterDTO.getSize() : 10);
+    Page<Product> page = productRepository.findAll(spec, pageable);
+    List<ProductResponseDTO> content =
+        page.getContent().stream().map(productMapper::toResponseDTO).toList();
+    return new PageResponseDTO<>(
+        content,
+        page.getNumber(),
+        page.getSize(),
+        page.getTotalElements(),
+        page.getTotalPages(),
+        page.isFirst(),
+        page.isLast());
   }
 
   public void delete(List<Long> ids) {
