@@ -79,7 +79,17 @@ public class CustomerService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<CustomerResponseDTO> filter(CustomerFilterDTO filterDTO) {
+    System.out.println("DEBUG Service: filterDTO = " + filterDTO);
+    if (filterDTO == null) {
+      System.out.println("DEBUG Service: filterDTO is null, creating new one");
+      filterDTO = new CustomerFilterDTO();
+    }
+    System.out.println("DEBUG Service: filterDTO.getFirstName() = " + filterDTO.getFirstName());
+    System.out.println("DEBUG Service: filterDTO = " + filterDTO);
+
     Specification<Customer> spec = CustomerSpecification.buildSpecification(filterDTO);
+    System.out.println("DEBUG Service: spec = " + spec);
+
     Pageable pageable =
         PageRequest.of(
             filterDTO.getPage() != null ? filterDTO.getPage() : 0,
