@@ -23,4 +23,5 @@ public class OrderResponseDTO {
   private List<OrderItemResponseDTO> orderItems;
   private String notes;
   private String shippingMethod;
+  private Long customerId;
 }

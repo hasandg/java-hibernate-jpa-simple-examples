@@ -6,6 +6,7 @@ import com.hasandag.ecommerce.dto.OrderItemCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
+import com.hasandag.ecommerce.entity.Customer;
 import com.hasandag.ecommerce.entity.Order;
 import com.hasandag.ecommerce.entity.OrderDetail;
 import com.hasandag.ecommerce.entity.OrderItem;
@@ -13,6 +14,7 @@ import com.hasandag.ecommerce.entity.OrderStatus;
 import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.OrderItemMapper;
 import com.hasandag.ecommerce.mapper.OrderMapper;
+import com.hasandag.ecommerce.repository.CustomerRepository;
 import com.hasandag.ecommerce.repository.OrderRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;
 import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
@@ -37,6 +39,7 @@ public class OrderService {
 
   private final OrderRepository orderRepository;
   private final ProductRepository productRepository;
+  private final CustomerRepository customerRepository;
   private final OrderMapper orderMapper;
   private final OrderItemMapper orderItemMapper;
 
@@ -45,6 +48,15 @@ public class OrderService {
     order.setOrderNumber(generateOrderNumber());
     order.setStatus(OrderStatus.PENDING);
     order.setOrderDate(LocalDateTime.now());
+
+    Customer customer =
+        customerRepository
+            .findById(createDTO.getCustomerId())
+            .orElseThrow(
+                () ->
+                    new EntityNotFoundException(
+                        "Customer not found with id: " + createDTO.getCustomerId()));
+    order.setCustomer(customer);
 
     BigDecimal totalAmount = BigDecimal.ZERO;
 

@@ -29,6 +29,7 @@ public interface OrderMapper {
       target = "shippingMethod",
       source = "orderDetail.shippingMethod",
       nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+  @Mapping(target = "customerId", source = "customer.id")
   OrderResponseDTO toResponseDTO(Order order);
 
   @Mapping(target = "orderNumber", ignore = true)

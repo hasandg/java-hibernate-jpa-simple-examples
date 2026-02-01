@@ -21,4 +21,7 @@ public class OrderCreateDTO {
   private String notes;
 
   private String shippingMethod;
+
+  @jakarta.validation.constraints.NotNull(message = "Customer ID is required")
+  private Long customerId;
 }
