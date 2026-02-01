@@ -1,10 +1,10 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.CategoryCreateDTO;
-import com.hasandag.ecommerce.dto.CategoryFilterDTO;
 import com.hasandag.ecommerce.dto.CategoryResponseDTO;
 import com.hasandag.ecommerce.dto.CategoryUpdateDTO;
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -76,7 +76,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
   public ResponseEntity<PageResponseDTO<CategoryResponseDTO>> filter(
-      @Valid @RequestBody CategoryFilterDTO filterDTO) {
+      @RequestBody FilterDTO filterDTO) {
     PageResponseDTO<CategoryResponseDTO> response = categoryService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }

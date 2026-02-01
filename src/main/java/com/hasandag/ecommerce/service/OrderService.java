@@ -1,7 +1,7 @@
 package com.hasandag.ecommerce.service;
 
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.OrderCreateDTO;
-import com.hasandag.ecommerce.dto.OrderFilterDTO;
 import com.hasandag.ecommerce.dto.OrderItemCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
@@ -15,8 +15,9 @@ import com.hasandag.ecommerce.mapper.OrderItemMapper;
 import com.hasandag.ecommerce.mapper.OrderMapper;
 import com.hasandag.ecommerce.repository.OrderRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;
-import com.hasandag.ecommerce.repository.specification.OrderSpecification;
+import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Path;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -153,8 +154,103 @@ public class OrderService {
   }
 
   @Transactional(readOnly = true)
-  public PageResponseDTO<OrderResponseDTO> filter(OrderFilterDTO filterDTO) {
-    Specification<Order> spec = OrderSpecification.buildSpecification(filterDTO);
+  public PageResponseDTO<OrderResponseDTO> filter(FilterDTO filterDTO) {
+    if (filterDTO == null) {
+      filterDTO = new FilterDTO();
+    }
+    final FilterDTO finalFilterDTO = filterDTO;
+
+    GenericSpecificationBuilder.FieldMappingConfig<Order> config =
+        new GenericSpecificationBuilder.FieldMappingConfig<Order>()
+            .addMapping("orderNumber", "orderNumber")
+            .addMapping(
+                "status",
+                new GenericSpecificationBuilder.FieldMapping<Order>("status")
+                    .caseSensitive()
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          String statusStr = finalFilterDTO.getStringFilter("status");
+                          if (statusStr == null) {
+                            return null;
+                          }
+                          try {
+                            OrderStatus status = OrderStatus.valueOf(statusStr.toUpperCase());
+                            return context
+                                .getCriteriaBuilder()
+                                .equal(context.getFieldPath(), status);
+                          } catch (IllegalArgumentException e) {
+                            return null;
+                          }
+                        }))
+            .addMapping(
+                "minTotalAmount",
+                new GenericSpecificationBuilder.FieldMapping<Order>("totalAmount")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          BigDecimal minAmount =
+                              parseBigDecimal(finalFilterDTO.getFilter("minTotalAmount"));
+                          return minAmount != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .greaterThanOrEqualTo(
+                                      (Path<BigDecimal>) context.getFieldPath(), minAmount)
+                              : null;
+                        }))
+            .addMapping(
+                "maxTotalAmount",
+                new GenericSpecificationBuilder.FieldMapping<Order>("totalAmount")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          BigDecimal maxAmount =
+                              parseBigDecimal(finalFilterDTO.getFilter("maxTotalAmount"));
+                          return maxAmount != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .lessThanOrEqualTo(
+                                      (Path<BigDecimal>) context.getFieldPath(), maxAmount)
+                              : null;
+                        }))
+            .addMapping(
+                "orderDateFrom",
+                new GenericSpecificationBuilder.FieldMapping<Order>("orderDate")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          String dateStr = finalFilterDTO.getStringFilter("orderDateFrom");
+                          if (dateStr == null) {
+                            return null;
+                          }
+                          try {
+                            LocalDateTime dateFrom = LocalDateTime.parse(dateStr);
+                            return context
+                                .getCriteriaBuilder()
+                                .greaterThanOrEqualTo(
+                                    (Path<LocalDateTime>) context.getFieldPath(), dateFrom);
+                          } catch (Exception e) {
+                            return null;
+                          }
+                        }))
+            .addMapping(
+                "orderDateTo",
+                new GenericSpecificationBuilder.FieldMapping<Order>("orderDate")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          String dateStr = finalFilterDTO.getStringFilter("orderDateTo");
+                          if (dateStr == null) {
+                            return null;
+                          }
+                          try {
+                            LocalDateTime dateTo = LocalDateTime.parse(dateStr);
+                            return context
+                                .getCriteriaBuilder()
+                                .lessThanOrEqualTo(
+                                    (Path<LocalDateTime>) context.getFieldPath(), dateTo);
+                          } catch (Exception e) {
+                            return null;
+                          }
+                        }));
+
+    Specification<Order> spec = GenericSpecificationBuilder.buildSpecification(filterDTO, config);
+
     Pageable pageable =
         PageRequest.of(
             filterDTO.getPage() != null ? filterDTO.getPage() : 0,
@@ -170,6 +266,23 @@ public class OrderService {
         page.getTotalPages(),
         page.isFirst(),
         page.isLast());
+  }
+
+  private BigDecimal parseBigDecimal(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    }
+    if (value instanceof Number) {
+      return BigDecimal.valueOf(((Number) value).doubleValue());
+    }
+    try {
+      return new BigDecimal(value.toString());
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   private String generateOrderNumber() {

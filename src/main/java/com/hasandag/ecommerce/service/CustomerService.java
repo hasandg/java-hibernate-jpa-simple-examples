@@ -1,15 +1,16 @@
 package com.hasandag.ecommerce.service;
 
 import com.hasandag.ecommerce.dto.CustomerCreateDTO;
-import com.hasandag.ecommerce.dto.CustomerFilterDTO;
 import com.hasandag.ecommerce.dto.CustomerResponseDTO;
 import com.hasandag.ecommerce.dto.CustomerUpdateDTO;
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.entity.Customer;
 import com.hasandag.ecommerce.mapper.CustomerMapper;
 import com.hasandag.ecommerce.repository.CustomerRepository;
-import com.hasandag.ecommerce.repository.specification.CustomerSpecification;
+import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,17 +79,29 @@ public class CustomerService {
   }
 
   @Transactional(readOnly = true)
-  public PageResponseDTO<CustomerResponseDTO> filter(CustomerFilterDTO filterDTO) {
-    System.out.println("DEBUG Service: filterDTO = " + filterDTO);
+  public PageResponseDTO<CustomerResponseDTO> filter(FilterDTO filterDTO) {
     if (filterDTO == null) {
-      System.out.println("DEBUG Service: filterDTO is null, creating new one");
-      filterDTO = new CustomerFilterDTO();
+      filterDTO = new FilterDTO();
     }
-    System.out.println("DEBUG Service: filterDTO.getFirstName() = " + filterDTO.getFirstName());
-    System.out.println("DEBUG Service: filterDTO = " + filterDTO);
 
-    Specification<Customer> spec = CustomerSpecification.buildSpecification(filterDTO);
-    System.out.println("DEBUG Service: spec = " + spec);
+    GenericSpecificationBuilder.FieldMappingConfig<Customer> config =
+        new GenericSpecificationBuilder.FieldMappingConfig<Customer>()
+            .addMapping("firstName", "firstName")
+            .addMapping("lastName", "lastName")
+            .addMapping("email", "email")
+            .addMapping("phone", "phone")
+            .addMapping(
+                "city",
+                new GenericSpecificationBuilder.FieldMapping<Customer>("city")
+                    .withJoin("address", JoinType.LEFT))
+            .addMapping(
+                "country",
+                new GenericSpecificationBuilder.FieldMapping<Customer>("country")
+                    .withJoin("address", JoinType.LEFT))
+            .withDistinct();
+
+    Specification<Customer> spec =
+        GenericSpecificationBuilder.buildSpecification(filterDTO, config);
 
     Pageable pageable =
         PageRequest.of(

@@ -1,10 +1,10 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.CustomerCreateDTO;
-import com.hasandag.ecommerce.dto.CustomerFilterDTO;
 import com.hasandag.ecommerce.dto.CustomerResponseDTO;
 import com.hasandag.ecommerce.dto.CustomerUpdateDTO;
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -130,28 +131,49 @@ public class CustomerController {
                 @ExampleObject(
                     name = "Search by name",
                     summary = "Filter by first name",
-                    value = "{\"firstName\": \"John\", \"page\": 0, \"size\": 10}"),
+                    value = "{\"filters\": {\"firstName\": \"John\"}, \"page\": 0, \"size\": 10}"),
                 @ExampleObject(
                     name = "Search by location",
                     summary = "Filter by city and country",
                     value =
-                        "{\"city\": \"Istanbul\", \"country\": \"Turkey\", \"page\": 0, \"size\": 10}"),
+                        "{\"filters\": {\"city\": \"Istanbul\", \"country\": \"Turkey\"}, \"page\": 0, \"size\": 10}"),
                 @ExampleObject(
                     name = "Search by email",
                     summary = "Filter by email domain",
-                    value = "{\"email\": \"@gmail.com\", \"page\": 0, \"size\": 10}"),
+                    value =
+                        "{\"filters\": {\"email\": \"@gmail.com\"}, \"page\": 0, \"size\": 10}"),
                 @ExampleObject(
                     name = "Combined search",
                     summary = "Multiple filter criteria",
                     value =
-                        "{\"firstName\": \"John\", \"lastName\": \"Doe\", \"city\": \"Istanbul\", \"page\": 0, \"size\": 10}"),
+                        "{\"filters\": {\"firstName\": \"John\", \"lastName\": \"Doe\", \"city\": \"Istanbul\"}, \"page\": 0, \"size\": 10}"),
                 @ExampleObject(
                     name = "Empty filter",
                     summary = "Get all customers with pagination",
-                    value = "{\"page\": 0, \"size\": 10}")
+                    value = "{\"filters\": {}, \"page\": 0, \"size\": 10}")
               }))
   public ResponseEntity<PageResponseDTO<CustomerResponseDTO>> filter(
-      @Valid @RequestBody CustomerFilterDTO filterDTO) {
+      @RequestBody FilterDTO filterDTO) {
+    System.out.println("DEBUG Controller: Received filterDTO = " + filterDTO);
+    System.out.println("DEBUG Controller: filterDTO != null: " + (filterDTO != null));
+    System.out.println("DEBUG TESTING FILTER DTO");
+    if (filterDTO != null) {
+      System.out.println("DEBUG Controller: filterDTO.getFilters() = " + filterDTO.getFilters());
+      System.out.println(
+          "DEBUG Controller: filterDTO.getFilters() != null: " + (filterDTO.getFilters() != null));
+      System.out.println(
+          "DEBUG Controller: filterDTO.getFilters().size() = "
+              + (filterDTO.getFilters() != null ? filterDTO.getFilters().size() : "null"));
+      if (filterDTO.getFilters() != null && !filterDTO.getFilters().isEmpty()) {
+        System.out.println(
+            "DEBUG Controller: filterDTO.getFilters().keySet() = "
+                + filterDTO.getFilters().keySet());
+        for (Map.Entry<String, Object> entry : filterDTO.getFilters().entrySet()) {
+          System.out.println(
+              "DEBUG Controller: filter[" + entry.getKey() + "] = " + entry.getValue());
+        }
+      }
+    }
     PageResponseDTO<CustomerResponseDTO> response = customerService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }

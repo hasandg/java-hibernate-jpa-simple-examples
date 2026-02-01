@@ -1,8 +1,8 @@
 package com.hasandag.ecommerce.service;
 
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
-import com.hasandag.ecommerce.dto.ProductFilterDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
 import com.hasandag.ecommerce.entity.Category;
@@ -10,8 +10,10 @@ import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.ProductMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
 import com.hasandag.ecommerce.repository.ProductRepository;
-import com.hasandag.ecommerce.repository.specification.ProductSpecification;
+import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Path;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -101,8 +103,83 @@ public class ProductService {
   }
 
   @Transactional(readOnly = true)
-  public PageResponseDTO<ProductResponseDTO> filter(ProductFilterDTO filterDTO) {
-    Specification<Product> spec = ProductSpecification.buildSpecification(filterDTO);
+  public PageResponseDTO<ProductResponseDTO> filter(FilterDTO filterDTO) {
+    if (filterDTO == null) {
+      filterDTO = new FilterDTO();
+    }
+    final FilterDTO finalFilterDTO = filterDTO;
+
+    GenericSpecificationBuilder.FieldMappingConfig<Product> config =
+        new GenericSpecificationBuilder.FieldMappingConfig<Product>()
+            .addMapping("name", "name")
+            .addMapping(
+                "minPrice",
+                new GenericSpecificationBuilder.FieldMapping<Product>("price")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          BigDecimal minPrice = parseBigDecimal(context.getValue());
+                          return minPrice != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .greaterThanOrEqualTo(
+                                      (Path<BigDecimal>) context.getFieldPath(), minPrice)
+                              : null;
+                        }))
+            .addMapping(
+                "maxPrice",
+                new GenericSpecificationBuilder.FieldMapping<Product>("price")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          BigDecimal maxPrice = parseBigDecimal(context.getValue());
+                          return maxPrice != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .lessThanOrEqualTo(
+                                      (Path<BigDecimal>) context.getFieldPath(), maxPrice)
+                              : null;
+                        }))
+            .addMapping(
+                "minStock",
+                new GenericSpecificationBuilder.FieldMapping<Product>("stock")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          Integer minStock = finalFilterDTO.getIntegerFilter("minStock");
+                          return minStock != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .greaterThanOrEqualTo(
+                                      (Path<Integer>) context.getFieldPath(), minStock)
+                              : null;
+                        }))
+            .addMapping(
+                "maxStock",
+                new GenericSpecificationBuilder.FieldMapping<Product>("stock")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          Integer maxStock = finalFilterDTO.getIntegerFilter("maxStock");
+                          return maxStock != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .lessThanOrEqualTo(
+                                      (Path<Integer>) context.getFieldPath(), maxStock)
+                              : null;
+                        }))
+            .addMapping(
+                "categoryId",
+                new GenericSpecificationBuilder.FieldMapping<Product>("id")
+                    .withJoin("category", jakarta.persistence.criteria.JoinType.INNER)
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          Long categoryId = finalFilterDTO.getLongFilter("categoryId");
+                          return categoryId != null
+                              ? context
+                                  .getCriteriaBuilder()
+                                  .equal(context.getRoot().get("category").get("id"), categoryId)
+                              : null;
+                        }));
+
+    Specification<Product> spec = GenericSpecificationBuilder.buildSpecification(filterDTO, config);
+
     Pageable pageable =
         PageRequest.of(
             filterDTO.getPage() != null ? filterDTO.getPage() : 0,
@@ -118,6 +195,23 @@ public class ProductService {
         page.getTotalPages(),
         page.isFirst(),
         page.isLast());
+  }
+
+  private BigDecimal parseBigDecimal(Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    }
+    if (value instanceof Number) {
+      return BigDecimal.valueOf(((Number) value).doubleValue());
+    }
+    try {
+      return new BigDecimal(value.toString());
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   public void delete(List<Long> ids) {

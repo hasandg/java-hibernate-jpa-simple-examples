@@ -1,15 +1,18 @@
 package com.hasandag.ecommerce.service;
 
 import com.hasandag.ecommerce.dto.CategoryCreateDTO;
-import com.hasandag.ecommerce.dto.CategoryFilterDTO;
 import com.hasandag.ecommerce.dto.CategoryResponseDTO;
 import com.hasandag.ecommerce.dto.CategoryUpdateDTO;
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.entity.Category;
+import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.CategoryMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
-import com.hasandag.ecommerce.repository.specification.CategorySpecification;
+import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Subquery;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -78,8 +81,63 @@ public class CategoryService {
   }
 
   @Transactional(readOnly = true)
-  public PageResponseDTO<CategoryResponseDTO> filter(CategoryFilterDTO filterDTO) {
-    Specification<Category> spec = CategorySpecification.buildSpecification(filterDTO);
+  public PageResponseDTO<CategoryResponseDTO> filter(FilterDTO filterDTO) {
+    if (filterDTO == null) {
+      filterDTO = new FilterDTO();
+    }
+    final FilterDTO finalFilterDTO = filterDTO;
+
+    GenericSpecificationBuilder.FieldMappingConfig<Category> config =
+        new GenericSpecificationBuilder.FieldMappingConfig<Category>()
+            .addMapping("name", "name")
+            .addMapping(
+                "minProductCount",
+                new GenericSpecificationBuilder.FieldMapping<Category>("id")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          Integer minCount = finalFilterDTO.getIntegerFilter("minProductCount");
+                          if (minCount == null) {
+                            return null;
+                          }
+                          Subquery<Long> subquery = context.getQuery().subquery(Long.class);
+                          Path<Product> productRoot = subquery.from(Product.class);
+                          subquery.select(context.getCriteriaBuilder().count(productRoot));
+                          subquery.where(
+                              context
+                                  .getCriteriaBuilder()
+                                  .equal(
+                                      productRoot.get("category").get("id"),
+                                      context.getRoot().get("id")));
+                          return context
+                              .getCriteriaBuilder()
+                              .greaterThanOrEqualTo(subquery, (long) minCount);
+                        }))
+            .addMapping(
+                "maxProductCount",
+                new GenericSpecificationBuilder.FieldMapping<Category>("id")
+                    .withAdvancedPredicate(
+                        (context) -> {
+                          Integer maxCount = finalFilterDTO.getIntegerFilter("maxProductCount");
+                          if (maxCount == null) {
+                            return null;
+                          }
+                          Subquery<Long> subquery = context.getQuery().subquery(Long.class);
+                          Path<Product> productRoot = subquery.from(Product.class);
+                          subquery.select(context.getCriteriaBuilder().count(productRoot));
+                          subquery.where(
+                              context
+                                  .getCriteriaBuilder()
+                                  .equal(
+                                      productRoot.get("category").get("id"),
+                                      context.getRoot().get("id")));
+                          return context
+                              .getCriteriaBuilder()
+                              .lessThanOrEqualTo(subquery, (long) maxCount);
+                        }));
+
+    Specification<Category> spec =
+        GenericSpecificationBuilder.buildSpecification(filterDTO, config);
+
     Pageable pageable =
         PageRequest.of(
             filterDTO.getPage() != null ? filterDTO.getPage() : 0,

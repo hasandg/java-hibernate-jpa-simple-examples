@@ -1,9 +1,9 @@
 package com.hasandag.ecommerce.controller;
 
 import com.hasandag.ecommerce.dto.DeleteIdsDTO;
+import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
-import com.hasandag.ecommerce.dto.ProductFilterDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
 import com.hasandag.ecommerce.service.ProductService;
@@ -83,7 +83,7 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
   public ResponseEntity<PageResponseDTO<ProductResponseDTO>> filter(
-      @Valid @RequestBody ProductFilterDTO filterDTO) {
+      @RequestBody FilterDTO filterDTO) {
     PageResponseDTO<ProductResponseDTO> response = productService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }
