@@ -9,6 +9,8 @@ import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -125,41 +127,37 @@ public class CustomerController {
         @ApiResponse(responseCode = "200", description = "Customers filtered successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
-  //  @RequestBody(
-  //      description = "Filter criteria for customer search",
-  //      required = true,
-  //      content =
-  //          @Content(
-  //              mediaType = "application/json",
-  //              examples = {
-  //                @ExampleObject(
-  //                    name = "Search by name",
-  //                    summary = "Filter by first name",
-  //                    value = "{\"filters\": {\"firstName\": \"John\"}, \"page\": 0, \"size\":
-  // 10}"),
-  //                @ExampleObject(
-  //                    name = "Search by location",
-  //                    summary = "Filter by city and country",
-  //                    value =
-  //                        "{\"filters\": {\"city\": \"Istanbul\", \"country\": \"Turkey\"},
-  // \"page\": 0, \"size\": 10}"),
-  //                @ExampleObject(
-  //                    name = "Search by email",
-  //                    summary = "Filter by email domain",
-  //                    value =
-  //                        "{\"filters\": {\"email\": \"@gmail.com\"}, \"page\": 0, \"size\":
-  // 10}"),
-  //                @ExampleObject(
-  //                    name = "Combined search",
-  //                    summary = "Multiple filter criteria",
-  //                    value =
-  //                        "{\"filters\": {\"firstName\": \"John\", \"lastName\": \"Doe\",
-  // \"city\": \"Istanbul\"}, \"page\": 0, \"size\": 10}"),
-  //                @ExampleObject(
-  //                    name = "Empty filter",
-  //                    summary = "Get all customers with pagination",
-  //                    value = "{\"filters\": {}, \"page\": 0, \"size\": 10}")
-  //              }))
+  @io.swagger.v3.oas.annotations.parameters.RequestBody(
+      description = "Filter criteria for customer search",
+      required = true,
+      content =
+          @Content(
+              mediaType = "application/json",
+              examples = {
+                @ExampleObject(
+                    name = "Search by name",
+                    summary = "Filter by first name",
+                    value = "{\"filters\": {\"firstName\": \"John\"}, \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Search by location",
+                    summary = "Filter by city and country",
+                    value =
+                        "{\"filters\": {\"city\": \"Istanbul\", \"country\": \"Turkey\"}, \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Search by email",
+                    summary = "Filter by email domain",
+                    value =
+                        "{\"filters\": {\"email\": \"@gmail.com\"}, \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Combined search",
+                    summary = "Multiple filter criteria",
+                    value =
+                        "{\"filters\": {\"firstName\": \"John\", \"lastName\": \"Doe\", \"city\": \"Istanbul\"}, \"page\": 0, \"size\": 10}"),
+                @ExampleObject(
+                    name = "Empty filter",
+                    summary = "Get all customers with pagination",
+                    value = "{\"filters\": {}, \"page\": 0, \"size\": 10}")
+              }))
   public ResponseEntity<PageResponseDTO<CustomerResponseDTO>> filter(
       @RequestBody FilterDTO filterDTO) {
     System.out.println("DEBUG Controller: Received filterDTO = " + filterDTO);
