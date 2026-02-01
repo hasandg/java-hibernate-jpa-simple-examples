@@ -25,13 +25,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ProductService {
 
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
   private final ProductMapper productMapper;
 
+  @Transactional
   public ProductResponseDTO create(ProductCreateDTO createDTO) {
     Product product = productMapper.toEntity(createDTO);
 
@@ -71,6 +71,7 @@ public class ProductService {
         .toList();
   }
 
+  @Transactional
   public ProductResponseDTO update(ProductUpdateDTO updateDTO) {
     if (updateDTO.getId() == null) {
       throw new IllegalArgumentException("Product ID is required for update");
@@ -214,6 +215,7 @@ public class ProductService {
     }
   }
 
+  @Transactional
   public void delete(List<Long> ids) {
     for (Long id : ids) {
       if (!productRepository.existsById(id)) {

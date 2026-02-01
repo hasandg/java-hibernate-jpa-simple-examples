@@ -86,12 +86,12 @@ VALUES (1, 1),
        (8, 6);
 
 -- Insert Orders
-INSERT INTO orders (order_number, total_amount, status, order_date)
-VALUES ('ORD-2024-001', 1299.99, 'DELIVERED', '2024-01-10 10:00:00'),
-       ('ORD-2024-002', 969.98, 'SHIPPED', '2024-01-15 14:30:00'),
-       ('ORD-2024-003', 69.98, 'PROCESSING', '2024-02-01 09:00:00'),
-       ('ORD-2024-004', 159.98, 'PENDING', '2024-02-05 11:20:00'),
-       ('ORD-2024-005', 29.99, 'DELIVERED', '2024-02-10 16:45:00');
+INSERT INTO orders (order_number, total_amount, status, order_date, customer_id)
+VALUES ('ORD-2024-001', 1299.99, 'DELIVERED', '2024-01-10 10:00:00', 1),
+       ('ORD-2024-002', 969.98, 'SHIPPED', '2024-01-15 14:30:00', 2),
+       ('ORD-2024-003', 69.98, 'PROCESSING', '2024-02-01 09:00:00', 3),
+       ('ORD-2024-004', 159.98, 'PENDING', '2024-02-05 11:20:00', 4),
+       ('ORD-2024-005', 29.99, 'DELIVERED', '2024-02-10 16:45:00', 5);
 
 -- Insert Order Details
 INSERT INTO order_details (notes, shipping_method, order_id)

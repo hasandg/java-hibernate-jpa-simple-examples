@@ -24,12 +24,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
 
+  @Transactional
   public CategoryResponseDTO create(CategoryCreateDTO createDTO) {
     if (categoryRepository.findByName(createDTO.getName()).isPresent()) {
       throw new IllegalArgumentException(
@@ -55,6 +55,7 @@ public class CategoryService {
     return categoryRepository.findAll().stream().map(categoryMapper::toResponseDTO).toList();
   }
 
+  @Transactional
   public CategoryResponseDTO update(CategoryUpdateDTO updateDTO) {
     if (updateDTO.getId() == null) {
       throw new IllegalArgumentException("Category ID is required for update");
@@ -155,6 +156,7 @@ public class CategoryService {
         page.isLast());
   }
 
+  @Transactional
   public void delete(List<Long> ids) {
     for (Long id : ids) {
       Category category =

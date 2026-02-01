@@ -2,15 +2,7 @@ package com.hasandag.ecommerce.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class AddressCreateDTO {
 
   @NotBlank(message = "Street is required")
@@ -32,4 +24,55 @@ public class AddressCreateDTO {
   @NotBlank(message = "Country is required")
   @Size(max = 100, message = "Country must not exceed 100 characters")
   private String country;
+
+  public AddressCreateDTO() {}
+
+  public AddressCreateDTO(
+      String street, String city, String state, String zipCode, String country) {
+    this.street = street;
+    this.city = city;
+    this.state = state;
+    this.zipCode = zipCode;
+    this.country = country;
+  }
+
+  public String getStreet() {
+    return street;
+  }
+
+  public void setStreet(String street) {
+    this.street = street;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getState() {
+    return state;
+  }
+
+  public void setState(String state) {
+    this.state = state;
+  }
+
+  public String getZipCode() {
+    return zipCode;
+  }
+
+  public void setZipCode(String zipCode) {
+    this.zipCode = zipCode;
+  }
+
+  public String getCountry() {
+    return country;
+  }
+
+  public void setCountry(String country) {
+    this.country = country;
+  }
 }

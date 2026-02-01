@@ -22,12 +22,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CustomerService {
 
   private final CustomerRepository customerRepository;
   private final CustomerMapper customerMapper;
 
+  @Transactional
   public CustomerResponseDTO create(CustomerCreateDTO createDTO) {
     if (customerRepository.findByEmail(createDTO.getEmail()).isPresent()) {
       throw new IllegalArgumentException(
@@ -53,6 +53,7 @@ public class CustomerService {
     return customerRepository.findAll().stream().map(customerMapper::toResponseDTO).toList();
   }
 
+  @Transactional
   public CustomerResponseDTO update(CustomerUpdateDTO updateDTO) {
     if (updateDTO.getId() == null) {
       throw new IllegalArgumentException("Customer ID is required for update");
@@ -120,6 +121,7 @@ public class CustomerService {
         page.isLast());
   }
 
+  @Transactional
   public void delete(List<Long> ids) {
     for (Long id : ids) {
       if (!customerRepository.existsById(id)) {

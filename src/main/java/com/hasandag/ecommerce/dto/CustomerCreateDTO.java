@@ -4,15 +4,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class CustomerCreateDTO {
 
   @NotBlank(message = "First name is required")
@@ -33,4 +25,55 @@ public class CustomerCreateDTO {
   private String phone;
 
   @Valid private AddressCreateDTO address;
+
+  public CustomerCreateDTO() {}
+
+  public CustomerCreateDTO(
+      String firstName, String lastName, String email, String phone, AddressCreateDTO address) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.email = email;
+    this.phone = phone;
+    this.address = address;
+  }
+
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public AddressCreateDTO getAddress() {
+    return address;
+  }
+
+  public void setAddress(AddressCreateDTO address) {
+    this.address = address;
+  }
 }

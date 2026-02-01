@@ -34,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class OrderService {
 
   private final OrderRepository orderRepository;
@@ -43,6 +42,7 @@ public class OrderService {
   private final OrderMapper orderMapper;
   private final OrderItemMapper orderItemMapper;
 
+  @Transactional
   public OrderResponseDTO create(OrderCreateDTO createDTO) {
     Order order = new Order();
     order.setOrderNumber(generateOrderNumber());
@@ -114,6 +114,7 @@ public class OrderService {
     return orderRepository.findAll().stream().map(orderMapper::toResponseDTO).toList();
   }
 
+  @Transactional
   public OrderResponseDTO update(OrderUpdateDTO updateDTO) {
     if (updateDTO.getId() == null) {
       throw new IllegalArgumentException("Order ID is required for update");
@@ -146,6 +147,7 @@ public class OrderService {
     return orderMapper.toResponseDTO(updatedOrder);
   }
 
+  @Transactional
   public void delete(List<Long> ids) {
     for (Long id : ids) {
       Order order =
