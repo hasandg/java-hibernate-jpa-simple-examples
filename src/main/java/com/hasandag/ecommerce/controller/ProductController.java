@@ -4,6 +4,9 @@ import com.hasandag.ecommerce.dto.DeleteIdsDTO;
 import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.dto.ProductCreateDTO;
+import com.hasandag.ecommerce.dto.ProductDraftResponseDTO;
+import com.hasandag.ecommerce.dto.ProductDraftReviewDTO;
+import com.hasandag.ecommerce.dto.ProductDraftSubmitDTO;
 import com.hasandag.ecommerce.dto.ProductResponseDTO;
 import com.hasandag.ecommerce.dto.ProductUpdateDTO;
 import com.hasandag.ecommerce.service.ProductService;
@@ -101,6 +104,67 @@ public class ProductController {
       })
   public ResponseEntity<ProductResponseDTO> update(@Valid @RequestBody ProductUpdateDTO updateDTO) {
     ProductResponseDTO response = productService.update(updateDTO);
+    return ResponseEntity.ok(response);
+  }
+
+  @PostMapping("/drafts")
+  @Operation(
+      summary = "Submit product update draft",
+      description =
+          "Submits product changes for moderator approval without applying them immediately")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "201", description = "Draft submitted successfully"),
+        @ApiResponse(responseCode = "404", description = "Product or category not found"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data")
+      })
+  public ResponseEntity<ProductDraftResponseDTO> submitDraft(
+      @Valid @RequestBody ProductDraftSubmitDTO submitDTO) {
+    ProductDraftResponseDTO response = productService.submitDraft(submitDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+  }
+
+  @GetMapping("/drafts/pending")
+  @Operation(
+      summary = "Get pending product drafts",
+      description = "Retrieves all pending product update drafts waiting for moderation")
+  public ResponseEntity<List<ProductDraftResponseDTO>> findPendingDrafts() {
+    List<ProductDraftResponseDTO> response = productService.findPendingDrafts();
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("/drafts/{draftId}/approve")
+  @Operation(
+      summary = "Approve product draft",
+      description = "Approves a pending draft and applies its values to the product")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Draft approved successfully"),
+        @ApiResponse(responseCode = "404", description = "Draft not found"),
+        @ApiResponse(responseCode = "400", description = "Draft is not pending or invalid input")
+      })
+  public ResponseEntity<ProductResponseDTO> approveDraft(
+      @PathVariable Long draftId, @Valid @RequestBody ProductDraftReviewDTO reviewDTO) {
+    ProductResponseDTO response =
+        productService.approveDraft(draftId, reviewDTO.getModeratorName());
+    return ResponseEntity.ok(response);
+  }
+
+  @PutMapping("/drafts/{draftId}/reject")
+  @Operation(
+      summary = "Reject product draft",
+      description = "Rejects a pending draft without changing the product")
+  @ApiResponses(
+      value = {
+        @ApiResponse(responseCode = "200", description = "Draft rejected successfully"),
+        @ApiResponse(responseCode = "404", description = "Draft not found"),
+        @ApiResponse(responseCode = "400", description = "Draft is not pending or invalid input")
+      })
+  public ResponseEntity<ProductDraftResponseDTO> rejectDraft(
+      @PathVariable Long draftId, @Valid @RequestBody ProductDraftReviewDTO reviewDTO) {
+    ProductDraftResponseDTO response =
+        productService.rejectDraft(
+            draftId, reviewDTO.getModeratorName(), reviewDTO.getRejectionReason());
     return ResponseEntity.ok(response);
   }
 
