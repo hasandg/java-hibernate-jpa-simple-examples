@@ -46,11 +46,11 @@ public class GlobalExceptionHandler {
     ErrorResponse error =
         ErrorResponse.builder()
             .timestamp(LocalDateTime.now())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
+            .status(HttpStatus.CONFLICT.value())
+            .error(HttpStatus.CONFLICT.getReasonPhrase())
             .message(ex.getMessage())
             .build();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
