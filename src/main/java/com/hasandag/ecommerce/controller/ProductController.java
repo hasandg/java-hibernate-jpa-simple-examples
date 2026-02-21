@@ -83,7 +83,7 @@ public class ProductController {
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
   public ResponseEntity<PageResponseDTO<ProductResponseDTO>> filter(
-      @RequestBody FilterDTO filterDTO) {
+      @Valid @RequestBody FilterDTO filterDTO) {
     PageResponseDTO<ProductResponseDTO> response = productService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }

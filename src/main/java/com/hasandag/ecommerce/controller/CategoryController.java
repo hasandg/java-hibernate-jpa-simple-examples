@@ -76,7 +76,7 @@ public class CategoryController {
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
   public ResponseEntity<PageResponseDTO<CategoryResponseDTO>> filter(
-      @RequestBody FilterDTO filterDTO) {
+      @Valid @RequestBody FilterDTO filterDTO) {
     PageResponseDTO<CategoryResponseDTO> response = categoryService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }

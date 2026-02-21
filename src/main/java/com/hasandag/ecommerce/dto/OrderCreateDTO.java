@@ -2,6 +2,7 @@ package com.hasandag.ecommerce.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,6 @@ public class OrderCreateDTO {
 
   private String shippingMethod;
 
-  @jakarta.validation.constraints.NotNull(message = "Customer ID is required")
+  @NotNull(message = "Customer ID is required")
   private Long customerId;
 }

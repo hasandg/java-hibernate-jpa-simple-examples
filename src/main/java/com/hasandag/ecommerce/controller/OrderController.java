@@ -6,6 +6,7 @@ import com.hasandag.ecommerce.dto.OrderCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
+import com.hasandag.ecommerce.service.OrderFilterService;
 import com.hasandag.ecommerce.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
   private final OrderService orderService;
+  private final OrderFilterService orderFilterService;
 
   @PostMapping
   @Operation(
@@ -73,8 +75,8 @@ public class OrderController {
         @ApiResponse(responseCode = "400", description = "Invalid filter criteria")
       })
   public ResponseEntity<PageResponseDTO<OrderResponseDTO>> filter(
-      @RequestBody FilterDTO filterDTO) {
-    PageResponseDTO<OrderResponseDTO> response = orderService.filter(filterDTO);
+      @Valid @RequestBody FilterDTO filterDTO) {
+    PageResponseDTO<OrderResponseDTO> response = orderFilterService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }
 

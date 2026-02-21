@@ -1,6 +1,8 @@
 package com.hasandag.ecommerce.repository.specification;
 
 import com.hasandag.ecommerce.dto.FilterDTO;
+import com.hasandag.ecommerce.dto.FilterGroup;
+import com.hasandag.ecommerce.dto.LogicalOperator;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
@@ -8,6 +10,8 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,39 +24,23 @@ public class GenericSpecificationBuilder {
 
   public static <T> Specification<T> buildSpecification(
       FilterDTO filterDTO, FieldMappingConfig<T> config) {
-    if (filterDTO == null || filterDTO.getFilters() == null || filterDTO.getFilters().isEmpty()) {
+    List<FilterGroup> groups = filterDTO.getResolvedFilterGroups();
+    if (groups.isEmpty()) {
       return (root, query, cb) -> cb.conjunction();
     }
 
     return (root, query, cb) -> {
-      List<Predicate> predicates = new ArrayList<>();
       Map<String, Join<?, ?>> joins = new HashMap<>();
+      List<Predicate> groupPredicates = new ArrayList<>();
 
-      for (Map.Entry<String, Object> entry : filterDTO.getFilters().entrySet()) {
-        String fieldName = entry.getKey();
-        Object value = entry.getValue();
-
-        if (value == null || (value instanceof String && ((String) value).trim().isEmpty())) {
-          continue;
-        }
-
-        FieldMapping<T> mapping = config.getFieldMapping(fieldName);
-        if (mapping == null) {
-          continue;
-        }
-
-        Path<?> fieldPath = getFieldPath(root, mapping, joins, cb);
-        if (fieldPath == null) {
-          continue;
-        }
-
-        Predicate predicate = buildPredicate(fieldPath, value, mapping, cb, root, query);
-        if (predicate != null) {
-          predicates.add(predicate);
+      for (FilterGroup group : groups) {
+        Predicate groupPredicate = buildGroupPredicate(group, config, root, query, cb, joins);
+        if (groupPredicate != null) {
+          groupPredicates.add(groupPredicate);
         }
       }
 
-      if (predicates.isEmpty()) {
+      if (groupPredicates.isEmpty()) {
         return cb.conjunction();
       }
 
@@ -60,13 +48,65 @@ public class GenericSpecificationBuilder {
         query.distinct(true);
       }
 
-      return cb.and(predicates.toArray(new Predicate[0]));
+      Predicate[] predicateArray = groupPredicates.toArray(new Predicate[0]);
+      return filterDTO.getGroupOperator() == LogicalOperator.OR
+          ? cb.or(predicateArray)
+          : cb.and(predicateArray);
     };
+  }
+
+  private static <T> Predicate buildGroupPredicate(
+      FilterGroup group,
+      FieldMappingConfig<T> config,
+      Root<T> root,
+      CriteriaQuery<?> query,
+      CriteriaBuilder cb,
+      Map<String, Join<?, ?>> joins) {
+
+    Map<String, Object> filters = group.getFilters();
+    if (filters.isEmpty()) {
+      return null;
+    }
+
+    List<Predicate> predicates = new ArrayList<>();
+
+    for (Map.Entry<String, Object> entry : filters.entrySet()) {
+      String fieldName = entry.getKey();
+      Object value = entry.getValue();
+
+      if (value == null || (value instanceof String s && s.trim().isEmpty())) {
+        continue;
+      }
+
+      FieldMapping<T> mapping = config.getFieldMapping(fieldName);
+      if (mapping == null) {
+        continue;
+      }
+
+      Path<?> fieldPath = getFieldPath(root, mapping, joins);
+      if (fieldPath == null) {
+        continue;
+      }
+
+      Predicate predicate = buildPredicate(fieldPath, value, mapping, cb, root, query);
+      if (predicate != null) {
+        predicates.add(predicate);
+      }
+    }
+
+    if (predicates.isEmpty()) {
+      return null;
+    }
+
+    Predicate[] predicateArray = predicates.toArray(new Predicate[0]);
+    return group.getOperator() == LogicalOperator.OR
+        ? cb.or(predicateArray)
+        : cb.and(predicateArray);
   }
 
   @SuppressWarnings("unchecked")
   private static <T> Path<?> getFieldPath(
-      Root<T> root, FieldMapping<T> mapping, Map<String, Join<?, ?>> joins, CriteriaBuilder cb) {
+      Root<T> root, FieldMapping<T> mapping, Map<String, Join<?, ?>> joins) {
     if (mapping.getJoinPath() != null) {
       Join<Object, Object> join =
           (Join<Object, Object>)
@@ -77,6 +117,7 @@ public class GenericSpecificationBuilder {
     return root.get(mapping.getFieldName());
   }
 
+  @SuppressWarnings("unchecked")
   private static <T> Predicate buildPredicate(
       Path<?> fieldPath,
       Object value,
@@ -109,8 +150,7 @@ public class GenericSpecificationBuilder {
     } else if (Boolean.class.equals(fieldType)
         || boolean.class.equals(fieldType)
         || Boolean.TYPE.equals(fieldType)) {
-      Boolean boolValue =
-          value instanceof Boolean ? (Boolean) value : Boolean.parseBoolean(value.toString());
+      Boolean boolValue = value instanceof Boolean b ? b : Boolean.parseBoolean(value.toString());
       return cb.equal(fieldPath, boolValue);
     }
 
@@ -243,6 +283,85 @@ public class GenericSpecificationBuilder {
 
     public CriteriaQuery<?> getQuery() {
       return query;
+    }
+
+    private static BigDecimal parseBigDecimal(Object val) {
+      if (val == null) return null;
+      if (val instanceof BigDecimal bd) return bd;
+      if (val instanceof Number n) return BigDecimal.valueOf(n.doubleValue());
+      try {
+        return new BigDecimal(val.toString());
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+
+    private static LocalDateTime parseDateTime(Object val) {
+      if (val == null) return null;
+      try {
+        return LocalDateTime.parse(val.toString().trim());
+      } catch (Exception e) {
+        return null;
+      }
+    }
+
+    private static Long parseLong(Object val) {
+      if (val == null) return null;
+      if (val instanceof Long l) return l;
+      if (val instanceof Number n) return n.longValue();
+      try {
+        return Long.parseLong(val.toString().trim());
+      } catch (NumberFormatException e) {
+        return null;
+      }
+    }
+
+    public <E extends Enum<E>> Predicate enumEquals(Class<E> enumType) {
+      String raw = value != null ? value.toString().trim() : null;
+      if (raw == null) return null;
+      try {
+        E enumValue = Enum.valueOf(enumType, raw.toUpperCase());
+        return criteriaBuilder.equal(fieldPath, enumValue);
+      } catch (IllegalArgumentException e) {
+        return null;
+      }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Predicate greaterThanOrEqualBigDecimal() {
+      BigDecimal parsed = parseBigDecimal(value);
+      return parsed != null
+          ? criteriaBuilder.greaterThanOrEqualTo((Path<BigDecimal>) fieldPath, parsed)
+          : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Predicate lessThanOrEqualBigDecimal() {
+      BigDecimal parsed = parseBigDecimal(value);
+      return parsed != null
+          ? criteriaBuilder.lessThanOrEqualTo((Path<BigDecimal>) fieldPath, parsed)
+          : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Predicate greaterThanOrEqualDateTime() {
+      LocalDateTime parsed = parseDateTime(value);
+      return parsed != null
+          ? criteriaBuilder.greaterThanOrEqualTo((Path<LocalDateTime>) fieldPath, parsed)
+          : null;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Predicate lessThanOrEqualDateTime() {
+      LocalDateTime parsed = parseDateTime(value);
+      return parsed != null
+          ? criteriaBuilder.lessThanOrEqualTo((Path<LocalDateTime>) fieldPath, parsed)
+          : null;
+    }
+
+    public Predicate equalLong() {
+      Long parsed = parseLong(value);
+      return parsed != null ? criteriaBuilder.equal(fieldPath, parsed) : null;
     }
   }
 }

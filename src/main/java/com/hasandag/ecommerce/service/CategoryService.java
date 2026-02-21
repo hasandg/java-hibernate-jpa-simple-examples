@@ -83,9 +83,6 @@ public class CategoryService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<CategoryResponseDTO> filter(FilterDTO filterDTO) {
-    if (filterDTO == null) {
-      filterDTO = new FilterDTO();
-    }
     final FilterDTO finalFilterDTO = filterDTO;
 
     GenericSpecificationBuilder.FieldMappingConfig<Category> config =
@@ -139,10 +136,7 @@ public class CategoryService {
     Specification<Category> spec =
         GenericSpecificationBuilder.buildSpecification(filterDTO, config);
 
-    Pageable pageable =
-        PageRequest.of(
-            filterDTO.getPage() != null ? filterDTO.getPage() : 0,
-            filterDTO.getSize() != null ? filterDTO.getSize() : 10);
+    Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getSize());
     Page<Category> page = categoryRepository.findAll(spec, pageable);
     List<CategoryResponseDTO> content =
         page.getContent().stream().map(categoryMapper::toResponseDTO).toList();

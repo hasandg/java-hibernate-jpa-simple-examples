@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -159,27 +158,7 @@ public class CustomerController {
                     value = "{\"filters\": {}, \"page\": 0, \"size\": 10}")
               }))
   public ResponseEntity<PageResponseDTO<CustomerResponseDTO>> filter(
-      @RequestBody FilterDTO filterDTO) {
-    System.out.println("DEBUG Controller: Received filterDTO = " + filterDTO);
-    System.out.println("DEBUG Controller: filterDTO != null: " + (filterDTO != null));
-    System.out.println("DEBUG TESTING FILTER DTO");
-    if (filterDTO != null) {
-      System.out.println("DEBUG Controller: filterDTO.getFilters() = " + filterDTO.getFilters());
-      System.out.println(
-          "DEBUG Controller: filterDTO.getFilters() != null: " + (filterDTO.getFilters() != null));
-      System.out.println(
-          "DEBUG Controller: filterDTO.getFilters().size() = "
-              + (filterDTO.getFilters() != null ? filterDTO.getFilters().size() : "null"));
-      if (filterDTO.getFilters() != null && !filterDTO.getFilters().isEmpty()) {
-        System.out.println(
-            "DEBUG Controller: filterDTO.getFilters().keySet() = "
-                + filterDTO.getFilters().keySet());
-        for (Map.Entry<String, Object> entry : filterDTO.getFilters().entrySet()) {
-          System.out.println(
-              "DEBUG Controller: filter[" + entry.getKey() + "] = " + entry.getValue());
-        }
-      }
-    }
+      @Valid @RequestBody FilterDTO filterDTO) {
     PageResponseDTO<CustomerResponseDTO> response = customerService.filter(filterDTO);
     return ResponseEntity.ok(response);
   }

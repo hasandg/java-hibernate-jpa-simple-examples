@@ -81,10 +81,6 @@ public class CustomerService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<CustomerResponseDTO> filter(FilterDTO filterDTO) {
-    if (filterDTO == null) {
-      filterDTO = new FilterDTO();
-    }
-
     GenericSpecificationBuilder.FieldMappingConfig<Customer> config =
         new GenericSpecificationBuilder.FieldMappingConfig<Customer>()
             .addMapping("firstName", "firstName")
@@ -104,10 +100,7 @@ public class CustomerService {
     Specification<Customer> spec =
         GenericSpecificationBuilder.buildSpecification(filterDTO, config);
 
-    Pageable pageable =
-        PageRequest.of(
-            filterDTO.getPage() != null ? filterDTO.getPage() : 0,
-            filterDTO.getSize() != null ? filterDTO.getSize() : 10);
+    Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getSize());
     Page<Customer> page = customerRepository.findAll(spec, pageable);
     List<CustomerResponseDTO> content =
         page.getContent().stream().map(customerMapper::toResponseDTO).toList();

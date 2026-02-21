@@ -105,9 +105,6 @@ public class ProductService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<ProductResponseDTO> filter(FilterDTO filterDTO) {
-    if (filterDTO == null) {
-      filterDTO = new FilterDTO();
-    }
     final FilterDTO finalFilterDTO = filterDTO;
 
     GenericSpecificationBuilder.FieldMappingConfig<Product> config =
@@ -181,10 +178,7 @@ public class ProductService {
 
     Specification<Product> spec = GenericSpecificationBuilder.buildSpecification(filterDTO, config);
 
-    Pageable pageable =
-        PageRequest.of(
-            filterDTO.getPage() != null ? filterDTO.getPage() : 0,
-            filterDTO.getSize() != null ? filterDTO.getSize() : 10);
+    Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getSize());
     Page<Product> page = productRepository.findAll(spec, pageable);
     List<ProductResponseDTO> content =
         page.getContent().stream().map(productMapper::toResponseDTO).toList();
