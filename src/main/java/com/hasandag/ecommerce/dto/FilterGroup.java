@@ -17,15 +17,19 @@ import lombok.Setter;
 public class FilterGroup {
 
   @Schema(
-      description = "Logical operator to combine filters within this group",
+      description =
+          "Logical operator to combine filters within this group. Defaults to AND if omitted.",
       example = "AND",
       defaultValue = "AND")
-  @NotNull
-  private LogicalOperator operator = LogicalOperator.AND;
+  private LogicalOperator operator;
 
   @Schema(
       description = "Map of field names to filter values within this group",
       example = "{\"customerId\": \"10\", \"shippingMethod\": \"Fly\"}")
   @NotNull
   private Map<String, Object> filters = new HashMap<>();
+
+  public LogicalOperator getOperator() {
+    return operator != null ? operator : LogicalOperator.AND;
+  }
 }

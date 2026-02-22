@@ -17,13 +17,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Schema(
-    description = "Generic filter criteria with grouped AND/OR logic and pagination",
+    description =
+        "Generic filter criteria with grouped AND/OR logic and pagination. "
+            + "AND is the default operator at both group and top level — only specify OR when needed.",
     example =
         """
         {
           "filterGroups": [
             {
-              "operator": "AND",
               "filters": { "customerId": "10", "shippingMethod": "Fly" }
             },
             {
@@ -31,7 +32,6 @@ import lombok.Setter;
               "filters": { "notes": "great", "customerId": "20" }
             }
           ],
-          "groupOperator": "AND",
           "page": 0,
           "size": 10
         }
@@ -46,11 +46,11 @@ public class FilterDTO {
   private List<FilterGroup> filterGroups = new ArrayList<>();
 
   @Schema(
-      description = "Logical operator to combine filter groups together",
+      description =
+          "Logical operator to combine filter groups together. Defaults to AND if omitted.",
       example = "AND",
       defaultValue = "AND")
-  @NotNull
-  private LogicalOperator groupOperator = LogicalOperator.AND;
+  private LogicalOperator groupOperator;
 
   @Schema(
       description =
@@ -68,6 +68,10 @@ public class FilterDTO {
   @Min(1)
   @Max(100)
   private Integer size = 10;
+
+  public LogicalOperator getGroupOperator() {
+    return groupOperator != null ? groupOperator : LogicalOperator.AND;
+  }
 
   public List<FilterGroup> getResolvedFilterGroups() {
     if (!filterGroups.isEmpty()) {
