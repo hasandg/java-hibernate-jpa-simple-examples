@@ -479,7 +479,7 @@ public class GenericSpecificationBuilder {
       }
     }
 
-    private static Integer parseInteger(Object val) {
+    public static Integer parseInteger(Object val) {
       if (val == null) return null;
       if (val instanceof Integer i) return i;
       if (val instanceof Number n) return n.intValue();

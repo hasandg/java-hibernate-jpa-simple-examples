@@ -55,4 +55,15 @@ public class Product {
       joinColumns = @JoinColumn(name = "product_id"),
       inverseJoinColumns = @JoinColumn(name = "tag_id"))
   private Set<Tag> tags = new HashSet<>();
+
+  public void deductStock(int quantity) {
+    if (stock < quantity) {
+      throw new IllegalArgumentException("Insufficient stock for product: " + name);
+    }
+    stock -= quantity;
+  }
+
+  public void restoreStock(int quantity) {
+    stock += quantity;
+  }
 }

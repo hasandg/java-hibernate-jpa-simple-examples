@@ -34,4 +34,14 @@ public class OrderItem {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "product_id", nullable = false)
   private Product product;
+
+  public void fillFromProduct(Product product) {
+    this.product = product;
+    this.unitPrice = product.getPrice();
+    product.deductStock(quantity);
+  }
+
+  public BigDecimal calculateTotal() {
+    return unitPrice.multiply(BigDecimal.valueOf(quantity));
+  }
 }

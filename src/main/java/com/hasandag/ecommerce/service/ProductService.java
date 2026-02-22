@@ -70,10 +70,6 @@ public class ProductService {
 
   @Transactional
   public ProductResponseDTO update(ProductUpdateDTO updateDTO) {
-    if (updateDTO.getId() == null) {
-      throw new IllegalArgumentException("Product ID is required for update");
-    }
-
     Product product =
         productRepository
             .findById(updateDTO.getId())

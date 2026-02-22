@@ -13,6 +13,7 @@ import com.hasandag.ecommerce.repository.CategoryRepository;
 import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Subquery;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -56,10 +57,6 @@ public class CategoryService {
 
   @Transactional
   public CategoryResponseDTO update(CategoryUpdateDTO updateDTO) {
-    if (updateDTO.getId() == null) {
-      throw new IllegalArgumentException("Category ID is required for update");
-    }
-
     Category category =
         categoryRepository
             .findById(updateDTO.getId())
@@ -80,15 +77,22 @@ public class CategoryService {
     return categoryMapper.toResponseDTO(updatedCategory);
   }
 
-  private static Integer parseInteger(Object value) {
-    if (value == null) return null;
-    if (value instanceof Integer i) return i;
-    if (value instanceof Number n) return n.intValue();
-    try {
-      return Integer.parseInt(value.toString().trim());
-    } catch (NumberFormatException e) {
+  private static Predicate productCountPredicate(
+      GenericSpecificationBuilder.PredicateContext context, boolean isMin) {
+    Integer count = GenericSpecificationBuilder.PredicateContext.parseInteger(context.getValue());
+    if (count == null) {
       return null;
     }
+    Subquery<Long> subquery = context.getQuery().subquery(Long.class);
+    Path<Product> productRoot = subquery.from(Product.class);
+    subquery.select(context.getCriteriaBuilder().count(productRoot));
+    subquery.where(
+        context
+            .getCriteriaBuilder()
+            .equal(productRoot.get("category").get("id"), context.getRoot().get("id")));
+    return isMin
+        ? context.getCriteriaBuilder().greaterThanOrEqualTo(subquery, (long) count)
+        : context.getCriteriaBuilder().lessThanOrEqualTo(subquery, (long) count);
   }
 
   @Transactional(readOnly = true)
@@ -98,47 +102,11 @@ public class CategoryService {
             .addMapping(
                 "minProductCount",
                 new GenericSpecificationBuilder.FieldMapping<Category>("id")
-                    .withAdvancedPredicate(
-                        (context) -> {
-                          Integer minCount = parseInteger(context.getValue());
-                          if (minCount == null) {
-                            return null;
-                          }
-                          Subquery<Long> subquery = context.getQuery().subquery(Long.class);
-                          Path<Product> productRoot = subquery.from(Product.class);
-                          subquery.select(context.getCriteriaBuilder().count(productRoot));
-                          subquery.where(
-                              context
-                                  .getCriteriaBuilder()
-                                  .equal(
-                                      productRoot.get("category").get("id"),
-                                      context.getRoot().get("id")));
-                          return context
-                              .getCriteriaBuilder()
-                              .greaterThanOrEqualTo(subquery, (long) minCount);
-                        }))
+                    .withAdvancedPredicate(ctx -> productCountPredicate(ctx, true)))
             .addMapping(
                 "maxProductCount",
                 new GenericSpecificationBuilder.FieldMapping<Category>("id")
-                    .withAdvancedPredicate(
-                        (context) -> {
-                          Integer maxCount = parseInteger(context.getValue());
-                          if (maxCount == null) {
-                            return null;
-                          }
-                          Subquery<Long> subquery = context.getQuery().subquery(Long.class);
-                          Path<Product> productRoot = subquery.from(Product.class);
-                          subquery.select(context.getCriteriaBuilder().count(productRoot));
-                          subquery.where(
-                              context
-                                  .getCriteriaBuilder()
-                                  .equal(
-                                      productRoot.get("category").get("id"),
-                                      context.getRoot().get("id")));
-                          return context
-                              .getCriteriaBuilder()
-                              .lessThanOrEqualTo(subquery, (long) maxCount);
-                        }));
+                    .withAdvancedPredicate(ctx -> productCountPredicate(ctx, false)));
 
     Specification<Category> spec =
         GenericSpecificationBuilder.buildSpecification(filterDTO, config);
@@ -154,11 +122,7 @@ public class CategoryService {
           categoryRepository
               .findById(id)
               .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + id));
-
-      if (!category.getProducts().isEmpty()) {
-        throw new IllegalStateException(
-            "Cannot delete category with id " + id + " - it has associated products");
-      }
+      category.ensureDeletable();
     }
     categoryRepository.deleteAllById(ids);
   }

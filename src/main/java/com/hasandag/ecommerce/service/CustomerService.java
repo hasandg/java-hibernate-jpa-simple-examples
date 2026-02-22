@@ -53,10 +53,6 @@ public class CustomerService {
 
   @Transactional
   public CustomerResponseDTO update(CustomerUpdateDTO updateDTO) {
-    if (updateDTO.getId() == null) {
-      throw new IllegalArgumentException("Customer ID is required for update");
-    }
-
     Customer customer =
         customerRepository
             .findById(updateDTO.getId())

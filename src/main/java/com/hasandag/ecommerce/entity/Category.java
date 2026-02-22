@@ -30,4 +30,11 @@ public class Category {
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonBackReference
   private List<Product> products = new ArrayList<>();
+
+  public void ensureDeletable() {
+    if (!products.isEmpty()) {
+      throw new IllegalStateException(
+          "Cannot delete category with id " + id + " - it has associated products");
+    }
+  }
 }
