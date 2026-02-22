@@ -81,9 +81,7 @@ public class OrderService {
     order.setTotalAmount(totalAmount);
 
     if (createDTO.getNotes() != null || createDTO.getShippingMethod() != null) {
-      OrderDetail orderDetail = new OrderDetail();
-      orderDetail.setNotes(createDTO.getNotes());
-      orderDetail.setShippingMethod(createDTO.getShippingMethod());
+      OrderDetail orderDetail = orderMapper.toOrderDetail(createDTO);
       orderDetail.setOrder(order);
       order.setOrderDetail(orderDetail);
     }
@@ -127,12 +125,12 @@ public class OrderService {
     if (updateDTO.getNotes() != null || updateDTO.getShippingMethod() != null) {
       OrderDetail orderDetail = order.getOrderDetail();
       if (orderDetail == null) {
-        orderDetail = new OrderDetail();
+        orderDetail = orderMapper.toOrderDetail(updateDTO);
         orderDetail.setOrder(order);
         order.setOrderDetail(orderDetail);
+      } else {
+        orderMapper.updateOrderDetail(updateDTO, orderDetail);
       }
-      orderDetail.setNotes(updateDTO.getNotes());
-      orderDetail.setShippingMethod(updateDTO.getShippingMethod());
     }
 
     Order updatedOrder = orderRepository.save(order);

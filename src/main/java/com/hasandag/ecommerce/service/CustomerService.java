@@ -7,15 +7,13 @@ import com.hasandag.ecommerce.dto.FilterDTO;
 import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.entity.Customer;
 import com.hasandag.ecommerce.mapper.CustomerMapper;
+import com.hasandag.ecommerce.mapper.PageMapper;
 import com.hasandag.ecommerce.repository.CustomerRepository;
 import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.JoinType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,37 +79,11 @@ public class CustomerService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<CustomerResponseDTO> filter(FilterDTO filterDTO) {
-    GenericSpecificationBuilder.FieldMappingConfig<Customer> config =
-        new GenericSpecificationBuilder.FieldMappingConfig<Customer>()
-            .addMapping("firstName", "firstName")
-            .addMapping("lastName", "lastName")
-            .addMapping("email", "email")
-            .addMapping("phone", "phone")
-            .addMapping(
-                "city",
-                new GenericSpecificationBuilder.FieldMapping<Customer>("city")
-                    .withJoin("address", JoinType.LEFT))
-            .addMapping(
-                "country",
-                new GenericSpecificationBuilder.FieldMapping<Customer>("country")
-                    .withJoin("address", JoinType.LEFT))
-            .withDistinct();
-
     Specification<Customer> spec =
-        GenericSpecificationBuilder.buildSpecification(filterDTO, config);
-
-    Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getSize());
-    Page<Customer> page = customerRepository.findAll(spec, pageable);
-    List<CustomerResponseDTO> content =
-        page.getContent().stream().map(customerMapper::toResponseDTO).toList();
-    return new PageResponseDTO<>(
-        content,
-        page.getNumber(),
-        page.getSize(),
-        page.getTotalElements(),
-        page.getTotalPages(),
-        page.isFirst(),
-        page.isLast());
+        GenericSpecificationBuilder.buildSpecification(filterDTO, Customer.class);
+    return PageMapper.toPageResponseDTO(
+        customerRepository.findAll(spec, PageRequest.of(filterDTO.getPage(), filterDTO.getSize())),
+        customerMapper::toResponseDTO);
   }
 
   @Transactional

@@ -8,6 +8,7 @@ import com.hasandag.ecommerce.dto.PageResponseDTO;
 import com.hasandag.ecommerce.entity.Category;
 import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.CategoryMapper;
+import com.hasandag.ecommerce.mapper.PageMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
 import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,9 +16,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Subquery;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,19 +80,27 @@ public class CategoryService {
     return categoryMapper.toResponseDTO(updatedCategory);
   }
 
+  private static Integer parseInteger(Object value) {
+    if (value == null) return null;
+    if (value instanceof Integer i) return i;
+    if (value instanceof Number n) return n.intValue();
+    try {
+      return Integer.parseInt(value.toString().trim());
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
   @Transactional(readOnly = true)
   public PageResponseDTO<CategoryResponseDTO> filter(FilterDTO filterDTO) {
-    final FilterDTO finalFilterDTO = filterDTO;
-
     GenericSpecificationBuilder.FieldMappingConfig<Category> config =
-        new GenericSpecificationBuilder.FieldMappingConfig<Category>()
-            .addMapping("name", "name")
+        new GenericSpecificationBuilder.FieldMappingConfig<>(Category.class)
             .addMapping(
                 "minProductCount",
                 new GenericSpecificationBuilder.FieldMapping<Category>("id")
                     .withAdvancedPredicate(
                         (context) -> {
-                          Integer minCount = finalFilterDTO.getIntegerFilter("minProductCount");
+                          Integer minCount = parseInteger(context.getValue());
                           if (minCount == null) {
                             return null;
                           }
@@ -115,7 +122,7 @@ public class CategoryService {
                 new GenericSpecificationBuilder.FieldMapping<Category>("id")
                     .withAdvancedPredicate(
                         (context) -> {
-                          Integer maxCount = finalFilterDTO.getIntegerFilter("maxProductCount");
+                          Integer maxCount = parseInteger(context.getValue());
                           if (maxCount == null) {
                             return null;
                           }
@@ -135,19 +142,9 @@ public class CategoryService {
 
     Specification<Category> spec =
         GenericSpecificationBuilder.buildSpecification(filterDTO, config);
-
-    Pageable pageable = PageRequest.of(filterDTO.getPage(), filterDTO.getSize());
-    Page<Category> page = categoryRepository.findAll(spec, pageable);
-    List<CategoryResponseDTO> content =
-        page.getContent().stream().map(categoryMapper::toResponseDTO).toList();
-    return new PageResponseDTO<>(
-        content,
-        page.getNumber(),
-        page.getSize(),
-        page.getTotalElements(),
-        page.getTotalPages(),
-        page.isFirst(),
-        page.isLast());
+    return PageMapper.toPageResponseDTO(
+        categoryRepository.findAll(spec, PageRequest.of(filterDTO.getPage(), filterDTO.getSize())),
+        categoryMapper::toResponseDTO);
   }
 
   @Transactional

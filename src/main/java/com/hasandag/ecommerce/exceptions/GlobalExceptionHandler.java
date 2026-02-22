@@ -1,5 +1,6 @@
 package com.hasandag.ecommerce.exceptions;
 
+import com.hasandag.ecommerce.mapper.ErrorResponseMapper;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -19,38 +20,20 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EntityNotFoundException.class)
   public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
-    ErrorResponse error =
-        ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
-            .status(HttpStatus.NOT_FOUND.value())
-            .error(HttpStatus.NOT_FOUND.getReasonPhrase())
-            .message(ex.getMessage())
-            .build();
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(ErrorResponseMapper.toErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage()));
   }
 
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
-    ErrorResponse error =
-        ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-            .message(ex.getMessage())
-            .build();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ErrorResponseMapper.toErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage()));
   }
 
   @ExceptionHandler(IllegalStateException.class)
   public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
-    ErrorResponse error =
-        ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
-            .message(ex.getMessage())
-            .build();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ErrorResponseMapper.toErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage()));
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -98,13 +81,9 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-    ErrorResponse error =
-        ErrorResponse.builder()
-            .timestamp(LocalDateTime.now())
-            .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-            .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-            .message("An unexpected error occurred")
-            .build();
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            ErrorResponseMapper.toErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred"));
   }
 }

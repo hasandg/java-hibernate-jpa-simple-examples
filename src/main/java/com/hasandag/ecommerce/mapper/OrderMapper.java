@@ -4,6 +4,7 @@ import com.hasandag.ecommerce.dto.OrderCreateDTO;
 import com.hasandag.ecommerce.dto.OrderResponseDTO;
 import com.hasandag.ecommerce.dto.OrderUpdateDTO;
 import com.hasandag.ecommerce.entity.Order;
+import com.hasandag.ecommerce.entity.OrderDetail;
 import org.mapstruct.*;
 
 @Mapper(
@@ -39,4 +40,12 @@ public interface OrderMapper {
   @Mapping(target = "orderItems", ignore = true)
   @Mapping(target = "orderDetail", ignore = true)
   void updateEntityFromDTO(OrderUpdateDTO dto, @MappingTarget Order order);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "order", ignore = true)
+  OrderDetail toOrderDetail(OrderCreateDTO dto);
+
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "order", ignore = true)
+  void updateOrderDetail(OrderUpdateDTO dto, @MappingTarget OrderDetail orderDetail);
 }
