@@ -10,7 +10,10 @@ import com.hasandag.ecommerce.entity.Product;
 import com.hasandag.ecommerce.mapper.CategoryMapper;
 import com.hasandag.ecommerce.mapper.PageMapper;
 import com.hasandag.ecommerce.repository.CategoryRepository;
+import com.hasandag.ecommerce.repository.specification.FieldMapping;
+import com.hasandag.ecommerce.repository.specification.FieldMappingConfig;
 import com.hasandag.ecommerce.repository.specification.GenericSpecificationBuilder;
+import com.hasandag.ecommerce.repository.specification.PredicateContext;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
@@ -77,9 +80,8 @@ public class CategoryService {
     return categoryMapper.toResponseDTO(updatedCategory);
   }
 
-  private static Predicate productCountPredicate(
-      GenericSpecificationBuilder.PredicateContext context, boolean isMin) {
-    Integer count = GenericSpecificationBuilder.PredicateContext.parseInteger(context.getValue());
+  private static Predicate productCountPredicate(PredicateContext context, boolean isMin) {
+    Integer count = PredicateContext.parseInteger(context.getValue());
     if (count == null) {
       return null;
     }
@@ -97,15 +99,15 @@ public class CategoryService {
 
   @Transactional(readOnly = true)
   public PageResponseDTO<CategoryResponseDTO> filter(FilterDTO filterDTO) {
-    GenericSpecificationBuilder.FieldMappingConfig<Category> config =
-        new GenericSpecificationBuilder.FieldMappingConfig<>(Category.class)
+    FieldMappingConfig<Category> config =
+        new FieldMappingConfig<>(Category.class)
             .addMapping(
                 "minProductCount",
-                new GenericSpecificationBuilder.FieldMapping<Category>("id")
+                new FieldMapping<Category>("id")
                     .withAdvancedPredicate(ctx -> productCountPredicate(ctx, true)))
             .addMapping(
                 "maxProductCount",
-                new GenericSpecificationBuilder.FieldMapping<Category>("id")
+                new FieldMapping<Category>("id")
                     .withAdvancedPredicate(ctx -> productCountPredicate(ctx, false)));
 
     Specification<Category> spec =
