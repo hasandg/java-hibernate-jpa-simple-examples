@@ -83,49 +83,4 @@ public class FilterDTO {
     return List.of();
   }
 
-  public Object getFilter(String key) {
-    for (FilterGroup group : getResolvedFilterGroups()) {
-      Object value = group.getFilters().get(key);
-      if (value != null) {
-        return value;
-      }
-    }
-    return null;
-  }
-
-  public String getStringFilter(String key) {
-    Object value = getFilter(key);
-    return value != null ? value.toString().trim() : null;
-  }
-
-  public Integer getIntegerFilter(String key) {
-    Object value = getFilter(key);
-    if (value == null) return null;
-    if (value instanceof Integer i) return i;
-    if (value instanceof Number n) return n.intValue();
-    try {
-      return Integer.parseInt(value.toString());
-    } catch (NumberFormatException e) {
-      return null;
-    }
-  }
-
-  public Long getLongFilter(String key) {
-    Object value = getFilter(key);
-    if (value == null) return null;
-    if (value instanceof Long l) return l;
-    if (value instanceof Number n) return n.longValue();
-    try {
-      return Long.parseLong(value.toString());
-    } catch (NumberFormatException e) {
-      return null;
-    }
-  }
-
-  public Boolean getBooleanFilter(String key) {
-    Object value = getFilter(key);
-    if (value == null) return null;
-    if (value instanceof Boolean b) return b;
-    return Boolean.parseBoolean(value.toString());
-  }
 }

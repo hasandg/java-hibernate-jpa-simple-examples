@@ -2,7 +2,7 @@
   "info": {
     "name": "E-Commerce API",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Complete API collection for the E-Commerce application covering Categories, Products, Customers, and Orders with full CRUD and advanced filtering."
+    "description": "Complete API collection for the E-Commerce application. Covers Category, Product, Customer, and Order with full CRUD and advanced grouped filtering (AND/OR logic, range filters, relation joins)."
   },
   "variable": [
     {
@@ -42,10 +42,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('categoryId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('categoryId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -109,7 +106,7 @@
           }
         },
         {
-          "name": "Filter Categories",
+          "name": "Filter Categories - by name",
           "request": {
             "method": "POST",
             "header": [
@@ -120,7 +117,88 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"name\": \"Electronics\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"name\": \"Electronics\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Categories - by description",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"description\": \"devices\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Categories - by minProductCount",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"minProductCount\": \"1\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "categories",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Categories - by maxProductCount",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"maxProductCount\": \"5\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/categories/filter",
@@ -193,16 +271,13 @@
       "name": "Product",
       "item": [
         {
-          "name": "Create Product",
+          "name": "Create Product (with category)",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('productId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('productId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -239,10 +314,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('productId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('productId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -335,7 +407,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"name\": \"Laptop\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"name\": \"Laptop\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/products/filter",
@@ -351,7 +423,34 @@
           }
         },
         {
-          "name": "Filter Products - by price range",
+          "name": "Filter Products - by description",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"description\": \"wireless\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Products - by price range (minPrice / maxPrice)",
           "request": {
             "method": "POST",
             "header": [
@@ -378,7 +477,7 @@
           }
         },
         {
-          "name": "Filter Products - by category",
+          "name": "Filter Products - by stock range (minStock / maxStock)",
           "request": {
             "method": "POST",
             "header": [
@@ -389,7 +488,34 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"categoryId\": \"{{categoryId}}\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"minStock\": \"10\",\n        \"maxStock\": \"100\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Products - by categoryId",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"categoryId\": \"{{categoryId}}\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/products/filter",
@@ -468,10 +594,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('customerId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('customerId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -508,10 +631,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('customerId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('customerId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -575,7 +695,7 @@
           }
         },
         {
-          "name": "Filter Customers - by name",
+          "name": "Filter Customers - by firstName",
           "request": {
             "method": "POST",
             "header": [
@@ -586,7 +706,34 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"firstName\": \"John\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"firstName\": \"John\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - by lastName",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"lastName\": \"Doe\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/customers/filter",
@@ -613,7 +760,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"email\": \"@example.com\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"email\": \"@example.com\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/customers/filter",
@@ -629,7 +776,7 @@
           }
         },
         {
-          "name": "Filter Customers - by city (address join)",
+          "name": "Filter Customers - by phone",
           "request": {
             "method": "POST",
             "header": [
@@ -640,7 +787,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"city\": \"Istanbul\",\n        \"country\": \"Turkey\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"phone\": \"555\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/customers/filter",
@@ -656,7 +803,7 @@
           }
         },
         {
-          "name": "Filter Customers - OR group",
+          "name": "Filter Customers - by address street",
           "request": {
             "method": "POST",
             "header": [
@@ -667,7 +814,142 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"operator\": \"OR\",\n      \"filters\": {\n        \"firstName\": \"John\",\n        \"firstName\": \"Jane\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"street\": \"Main\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - by address city",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"city\": \"Istanbul\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - by address state",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"state\": \"Marmara\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - by address zipCode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"zipCode\": \"34000\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - by address country",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"country\": \"Turkey\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Customers - combined with OR group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"operator\": \"OR\",\n      \"filters\": {\n        \"firstName\": \"John\",\n        \"city\": \"Istanbul\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/customers/filter",
@@ -746,10 +1028,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('orderId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('orderId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -786,10 +1065,7 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    var json = pm.response.json();",
-                  "    pm.collectionVariables.set('orderId', json.id);",
-                  "}"
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('orderId', pm.response.json().id); }"
                 ],
                 "type": "text/javascript"
               }
@@ -891,7 +1167,34 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"status\": \"PENDING\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"status\": \"PENDING\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Orders - by orderNumber",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"orderNumber\": \"ORD-\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders/filter",
@@ -918,34 +1221,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"customerId\": \"{{customerId}}\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/orders/filter",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "orders",
-                "filter"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Filter Orders - by shipping method",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"shippingMethod\": \"FedEx\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"customerId\": \"{{customerId}}\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders/filter",
@@ -972,7 +1248,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"notes\": \"care\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"notes\": \"care\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders/filter",
@@ -988,7 +1264,34 @@
           }
         },
         {
-          "name": "Filter Orders - by total amount range",
+          "name": "Filter Orders - by shippingMethod",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"shippingMethod\": \"FedEx\" }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/orders/filter",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "filter"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter Orders - by totalAmount range (min/max)",
           "request": {
             "method": "POST",
             "header": [
@@ -1015,7 +1318,7 @@
           }
         },
         {
-          "name": "Filter Orders - by date range",
+          "name": "Filter Orders - by date range (orderDateFrom / orderDateTo)",
           "request": {
             "method": "POST",
             "header": [
@@ -1107,7 +1410,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": {\n        \"customerId\": \"{{customerId}}\"\n      }\n    },\n    {\n      \"operator\": \"OR\",\n      \"filters\": {\n        \"shippingMethod\": \"DHL\",\n        \"notes\": \"care\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
+              "raw": "{\n  \"filterGroups\": [\n    {\n      \"filters\": { \"customerId\": \"{{customerId}}\" }\n    },\n    {\n      \"operator\": \"OR\",\n      \"filters\": {\n        \"shippingMethod\": \"DHL\",\n        \"notes\": \"care\"\n      }\n    }\n  ],\n  \"page\": 0,\n  \"size\": 10\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/orders/filter",
